@@ -1,19 +1,118 @@
-Linux kernel
-============
+### Kernel with Full NetHunter Support
 
-There are several guides for kernel developers and users. These guides can
-be rendered in a number of formats, like HTML and PDF. Please read
-Documentation/admin-guide/README.rst first.
+This kernel is specifically designed to support all features of **Kali NetHunter**, the penetration testing platform for Android devices. It includes custom patches, drivers, and configurations to enable advanced hacking and security testing capabilities on supported Android devices.
 
-In order to build the documentation, use ``make htmldocs`` or
-``make pdfdocs``.  The formatted documentation can also be read online at:
+---
 
-    https://www.kernel.org/doc/html/latest/
+### Key Features:
+1. **NetHunter Integration**:
+   - Full support for NetHunter tools such as **HID Keyboard**, **BadUSB**, **Man-in-the-Middle (MITM) attacks**, and more.
+   - Pre-configured kernel modules for wireless attacks (e.g., monitor mode, packet injection).
 
-There are various text files in the Documentation/ subdirectory,
-several of them using the Restructured Text markup notation.
-See Documentation/00-INDEX for a list of what is contained in each file.
+2. **Wi-Fi Driver Support**:
+   - Includes drivers for popular Wi-Fi chipsets (e.g., `rtl8188eu`, `rtl8812au`, `88x2bu`) to enable monitor mode and packet injection.
 
-Please read the Documentation/process/changes.rst file, as it contains the
-requirements for building and running the kernel, and information about
-the problems which may result by upgrading your kernel.
+3. **USB Gadget Support**:
+   - Enables USB OTG functionality for tools like **HID Keyboard** and **BadUSB**.
+
+4. **SELinux Permissive**:
+   - The kernel runs in **SELinux permissive mode** to allow unrestricted access to system resources for penetration testing.
+
+5. **Overclocking and Performance Tweaks**:
+   - Custom CPU/GPU governors and I/O schedulers for improved performance.
+
+6. **Battery Optimization**:
+   - Power-saving features to extend battery life during extended testing sessions.
+
+7. **Kernel Modules**:
+   - Pre-built modules for **NetHunter** tools and wireless attacks.
+
+---
+
+### How to Use the Script
+
+This script automates the process of building the kernel with NetHunter support. Follow these steps:
+
+---
+
+#### 1. **Prerequisites**:
+   - Ensure you have a Linux environment (e.g., Ubuntu, Debian, or Kali Linux).
+   - Install the required dependencies by running:
+     ```bash
+     sudo apt update
+     sudo apt install clang make git python3 flex bison bc libssl-dev build-essential libncurses-dev ccache automake lzop gperf zip curl zlib1g-dev libxml2-utils bzip2 libbz2-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-dev optipng maven pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl x11proto-core-dev libx11-dev libgl1-mesa-dev xsltproc unzip nano python2
+     ```
+
+---
+
+#### 2. **Download the Script**:
+   - Save the script to your working directory (e.g., `build_kernel.sh`).
+   - Make the script executable:
+     ```bash
+     chmod +x build_kernel.sh
+     ```
+
+---
+
+#### 3. **Run the Script**:
+   - Execute the script:
+     ```bash
+     ./build_kernel.sh
+     ```
+
+---
+
+#### 4. **Script Workflow**:
+   - **Step 1: Clear Screen**  
+     The script clears the terminal screen for better readability.
+
+   - **Step 2: Check and Install Packages**  
+     The script checks for required packages and installs them if missing.
+
+   - **Step 3: Download Wi-Fi Drivers**  
+     The script downloads and prepares Wi-Fi drivers for monitor mode and packet injection.
+
+   - **Step 4: Choose Kernel Configuration**  
+     The script lists available kernel configurations and prompts you to select one.
+
+   - **Step 5: Open Menuconfig (Optional)**  
+     You can customize the kernel configuration using `menuconfig`.
+
+   - **Step 6: Build the Kernel**  
+     The script compiles the kernel using the selected configuration.
+
+---
+
+#### 5. **Output**:
+   - After a successful build, the kernel image (`Image` or `Image.gz-dtb`) will be located in the `out/arch/arm64/boot/` directory.
+   - You can flash the kernel to your device using tools like `fastboot` or `TWRP`.
+
+---
+
+### Example Commands for Flashing the Kernel:
+1. **Boot into Fastboot Mode**:
+   ```bash
+   adb reboot bootloader
+   ```
+
+2. **Flash the Kernel**:
+   ```bash
+   fastboot flash boot path/to/Image.gz-dtb
+   ```
+
+3. **Reboot the Device**:
+   ```bash
+   fastboot reboot
+   ```
+
+---
+
+### Notes:
+- Ensure your device is **unlocked** and supports custom kernels.
+- Backup your data before flashing the kernel.
+- If you encounter issues, check the build logs or contact the developer for support.
+
+---
+
+### Summary:
+This script simplifies the process of building a custom kernel with full NetHunter support. It handles dependency installation, driver setup, and kernel compilation, making it ideal for penetration testers and security enthusiasts.

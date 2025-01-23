@@ -85,7 +85,7 @@ download_wifi_drivers() {
     "rtl8188fu https://github.com/kelebek333/rtl8188fu.git"
     "rtl8192eu https://github.com/Mange/rtl8192eu-linux-driver.git"
     "rtl8192fu https://github.com/eirkkk/rtl8192fu-dkms.git"
-    "rtl8812au https://github.com/aircrack-ng/rtl8812au.git"
+    "rtl8812au https://github.com/eirkkk/rtl8812au.git"
     "rtl8814au https://github.com/aircrack-ng/rtl8814au.git"
     "88x2bu https://github.com/morrownr/88x2bu-20210702.git"
   )
@@ -106,10 +106,50 @@ download_wifi_drivers() {
   success_msg "Wi-Fi drivers downloaded successfully."
 }
 
-# Disable unsupported warning option
-sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' ./drivers/rtl88x2bu/Makefile
-sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' ./drivers/88x2bu/Makefile
-sed -i 's/-Wno-discarded-qualifiers/-Wno-ignored-qualifiers/' ./drivers/rtl8192fu/Makefile
+# Function to modify Makefiles after downloading drivers
+modify_makefiles() {
+  info_msg "Modifying Makefiles to fix build issues..."
+
+  # Disable unsupported warning options
+  sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' drivers/88x2bu/Makefile
+  sed -i 's/-Wno-discarded-qualifiers/-Wno-ignored-qualifiers/' drivers/rtl8192fu/Makefile
+
+  success_msg "Makefiles modified successfully."
+}
+
+# Function to modify Kconfig and Makefile
+modify_kconfig_and_makefile() {
+  info_msg "Modifying Kconfig and Makefile..."
+
+  # Append to Kconfig
+  if [ -f "drivers/Kconfig" ]; then
+    echo 'source "drivers/rtl8188eus/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/rtl8188fu/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/rtl8192eu/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/rtl8192fu/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/rtl8812au/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/rtl8814au/Kconfig"' >> drivers/Kconfig
+    echo 'source "drivers/88x2bu/Kconfig"' >> drivers/Kconfig
+    success_msg "Kconfig modified successfully."
+  else
+    error_msg "drivers/Kconfig file not found!"
+  fi
+
+  # Append to Makefile
+  if [ -f "drivers/Makefile" ]; then
+    echo 'obj-y += rtl8188eus/' >> drivers/Makefile
+    echo 'obj-y += rtl8188fu/' >> drivers/Makefile
+    echo 'obj-y += rtl8192eu/' >> drivers/Makefile
+    echo 'obj-y += rtl8192fu/' >> drivers/Makefile
+    echo 'obj-y += rtl8812au/' >> drivers/Makefile
+    echo 'obj-y += rtl8814au/' >> drivers/Makefile
+    echo 'obj-y += 88x2bu/' >> drivers/Makefile
+    success_msg "Makefile modified successfully."
+  else
+    error_msg "drivers/Makefile file not found!"
+  fi
+}
+
 # Function to choose configuration file
 choose_config() {
   CONFIG_PATH="arch/arm64/configs"
@@ -159,6 +199,8 @@ main() {
   clear_screen
   check_and_install_packages
   download_wifi_drivers
+  modify_makefiles
+  modify_kconfig_and_makefile
   choose_config
   open_menuconfig
   start_build

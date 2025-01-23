@@ -2,7 +2,7 @@
 
 ---
 
-## **NetHunter Kernel Build Script**
+## NetHunter Kernel Build Script
 
 This script automates the process of building a custom Linux kernel with full support for **Kali NetHunter**, the penetration testing platform for Android devices. It is designed to simplify the compilation process, ensuring that all necessary drivers, patches, and configurations are included for advanced security testing and wireless attacks.
 

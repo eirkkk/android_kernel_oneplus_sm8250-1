@@ -109,7 +109,7 @@ download_wifi_drivers() {
 # Disable unsupported warning option
 sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' ./drivers/rtl88x2bu/Makefile
 sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' ./drivers/88x2bu/Makefile
-
+sed -i 's/-Wno-discarded-qualifiers/-Wno-ignored-qualifiers/' ./drivers/rtl8192fu/Makefile
 # Function to choose configuration file
 choose_config() {
   CONFIG_PATH="arch/arm64/configs"

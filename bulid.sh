@@ -85,9 +85,10 @@ download_wifi_drivers() {
     "rtl8188fu https://github.com/kelebek333/rtl8188fu.git"
     "rtl8192eu https://github.com/Mange/rtl8192eu-linux-driver.git"
     "rtl8192fu https://github.com/eirkkk/rtl8192fu-dkms.git"
-    "rtl8812au https://github.com/eirkkk/rtl8812au.git"
+    "rtl8812au https://github.com/aircrack-ng/rtl8812au.git"
     "rtl8814au https://github.com/aircrack-ng/rtl8814au.git"
     "88x2bu https://github.com/morrownr/88x2bu-20210702.git"
+    "rtl8821au https://github.com/ivanovborislav/rtl8821au"
   )
 
   for driver in "${drivers[@]}"; do
@@ -111,8 +112,13 @@ modify_makefiles() {
   info_msg "Modifying Makefiles to fix build issues..."
 
   # Disable unsupported warning options
-  sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' drivers/88x2bu/Makefile
-  sed -i 's/-Wno-discarded-qualifiers/-Wno-ignored-qualifiers/' drivers/rtl8192fu/Makefile
+  if [ -f "drivers/88x2bu/Makefile" ]; then
+    sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' drivers/88x2bu/Makefile
+  fi
+
+  if [ -f "drivers/rtl8192fu/Makefile" ]; then
+    sed -i 's/-Wno-discarded-qualifiers/-Wno-ignored-qualifiers/' drivers/rtl8192fu/Makefile
+  fi
 
   success_msg "Makefiles modified successfully."
 }
@@ -123,13 +129,30 @@ modify_kconfig_and_makefile() {
 
   # Append to Kconfig
   if [ -f "drivers/Kconfig" ]; then
-    echo 'source "drivers/rtl8188eus/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/rtl8188fu/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/rtl8192eu/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/rtl8192fu/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/rtl8812au/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/rtl8814au/Kconfig"' >> drivers/Kconfig
-    echo 'source "drivers/88x2bu/Kconfig"' >> drivers/Kconfig
+    if ! grep -q "source \"drivers/rtl8188eus/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8188eus/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8188fu/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8188fu/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8192eu/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8192eu/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8192fu/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8192fu/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8812au/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8812au/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8814au/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8814au/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/88x2bu/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/88x2bu/Kconfig"' >> drivers/Kconfig
+    fi
+    if ! grep -q "source \"drivers/rtl8821au/Kconfig\"" drivers/Kconfig; then
+      echo 'source "drivers/rtl8821au/Kconfig"' >> drivers/Kconfig
+    fi
     success_msg "Kconfig modified successfully."
   else
     error_msg "drivers/Kconfig file not found!"
@@ -137,13 +160,30 @@ modify_kconfig_and_makefile() {
 
   # Append to Makefile
   if [ -f "drivers/Makefile" ]; then
-    echo 'obj-y += rtl8188eus/' >> drivers/Makefile
-    echo 'obj-y += rtl8188fu/' >> drivers/Makefile
-    echo 'obj-y += rtl8192eu/' >> drivers/Makefile
-    echo 'obj-y += rtl8192fu/' >> drivers/Makefile
-    echo 'obj-y += rtl8812au/' >> drivers/Makefile
-    echo 'obj-y += rtl8814au/' >> drivers/Makefile
-    echo 'obj-y += 88x2bu/' >> drivers/Makefile
+    if ! grep -q "obj-y += rtl8188eus/" drivers/Makefile; then
+      echo 'obj-y += rtl8188eus/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8188fu/" drivers/Makefile; then
+      echo 'obj-y += rtl8188fu/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8192eu/" drivers/Makefile; then
+      echo 'obj-y += rtl8192eu/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8192fu/" drivers/Makefile; then
+      echo 'obj-y += rtl8192fu/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8812au/" drivers/Makefile; then
+      echo 'obj-y += rtl8812au/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8814au/" drivers/Makefile; then
+      echo 'obj-y += rtl8814au/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += 88x2bu/" drivers/Makefile; then
+      echo 'obj-y += 88x2bu/' >> drivers/Makefile
+    fi
+    if ! grep -q "obj-y += rtl8821au/" drivers/Makefile; then
+      echo 'obj-y += rtl8821au/' >> drivers/Makefile
+    fi
     success_msg "Makefile modified successfully."
   else
     error_msg "drivers/Makefile file not found!"

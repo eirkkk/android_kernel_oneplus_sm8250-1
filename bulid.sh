@@ -85,7 +85,7 @@ download_wifi_drivers() {
     "rtl8188fu https://github.com/kelebek333/rtl8188fu.git"
     "rtl8192eu https://github.com/Mange/rtl8192eu-linux-driver.git"
     "rtl8192fu https://github.com/eirkkk/rtl8192fu-dkms.git"
-    "rtl8812au https://github.com/aircrack-ng/rtl8812au.git"
+    "rtl8812au https://github.com/eirkkk/rtl8812au.git"
     "rtl8814au https://github.com/aircrack-ng/rtl8814au.git"
     "88x2bu https://github.com/morrownr/88x2bu-20210702.git"
     "rtl8821au https://github.com/ivanovborislav/rtl8821au"

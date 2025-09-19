@@ -114,6 +114,7 @@ modify_makefiles() {
   # Disable unsupported warning options
   if [ -f "drivers/88x2bu/Makefile" ]; then
     sed -i 's/EXTRA_CFLAGS += -Wno-stringop-overread/#EXTRA_CFLAGS += -Wno-stringop-overread/' drivers/88x2bu/Makefile
+    sed -i 's/-Wno-stringop-overread//g' drivers/88x2bu/Makefile
   fi
 
   if [ -f "drivers/rtl8192fu/Makefile" ]; then

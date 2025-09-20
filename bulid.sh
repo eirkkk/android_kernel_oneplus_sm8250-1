@@ -142,6 +142,7 @@ download_additional_repos() {
         git clone --depth 1 --filter=blob:none --sparse https://github.com/flyoverhead/crdroid_12_kernel.git
         cd crdroid_12_kernel
         git sparse-checkout set drivers/staging/qca-wifi-host-cmn/htc
+        git sparse-checkout set drivers/net/wireless/ath/ath9k
         git checkout 12L-nethunter
         cd ..
     fi
@@ -163,7 +164,7 @@ copy_repo_files() {
     # Copy WiFi drivers from crdroid
     if [ -d "crdroid_12_kernel/drivers/staging/qca-wifi-host-cmn/htc" ]; then
         mkdir -p drivers/staging/qca-wifi-host-cmn/
-        cp -r crdroid_12_kernel/drivers/staging/qca-wifi-host-cmn/htc drivers/staging/qca-wifi-host-cmn/
+        cp -r crdroid_12_kernel/drivers/* drivers/
         info_msg "Copied WiFi drivers from crdroid repository"
     fi
 

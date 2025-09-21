@@ -244,6 +244,38 @@ setup_can_support() {
     success_msg "CAN bus subsystem setup completed."
 }
 
+# Function to add ELM327 driver config
+add_elm327_driver() {
+    info_msg "Adding ELM327 driver configuration..."
+
+    # Edit Kconfig
+    info_msg "Editing drivers/net/can/Kconfig..."
+    if ! grep -q "config CAN_CAN327" drivers/net/can/Kconfig; then
+        cat << 'EOF' >> drivers/net/can/Kconfig
+
+config CAN_CAN327
+	tristate "Serial / USB serial ELM327 based OBD-II Interfaces (can327)"
+	depends on TTY
+	select CAN_RX_OFFLOAD
+	help
+	 CAN driver for several 'low cost' OBD-II interfaces based on the
+	 ELM327 OBD-II interpreter chip.
+	 This is a best effort driver - the ELM327 interface was never
+	 designed to be used as a standalone CAN interface. However, it can
+	 still be used for simple request-response protocols (such as OBD II),
+	 and to monitor broadcast messages on a bus (such as in a vehicle).
+	 Please refer to the documentation for information on how to use it:
+	 Documentation/networking/device_drivers/can/can327.rst
+	 If this driver is built as a module, it will be called can327.
+EOF
+        success_msg "Added CAN_CAN327 config to Kconfig"
+    else
+        info_msg "CAN_CAN327 config already exists in Kconfig"
+    fi
+    
+    success_msg "ELM327 driver added successfully!"
+}
+
 # Function to modify Kconfig files for CAN support
 modify_can_kconfig() {
     info_msg "Modifying CAN Kconfig files..."
@@ -343,8 +375,8 @@ modify_kconfig_and_makefile() {
     fi
 }
 
-# Function to choose configuration file
-choose_config() {
+# Function to choose and apply configuration file
+choose_and_apply_config() {
     CONFIG_PATH="arch/arm64/configs"
     if [ ! -d "$CONFIG_PATH" ]; then
         error_msg "Directory $CONFIG_PATH does not exist!"
@@ -367,6 +399,32 @@ choose_config() {
             error_msg "Invalid choice! Please try again."
         fi
     done
+
+    # Apply the selected config
+    info_msg "Applying configuration: $CONFIG"
+    
+    # إنشاء مجلد out إذا لم يكن موجودًا
+    mkdir -p out
+    
+    # محاولة تطبيق ملف config بطرق مختلفة
+    info_msg "Trying to apply config using different methods..."
+    
+    # الطريقة 1: استخدام _defconfig
+    if make ARCH=arm64 CC=clang O=out "${CONFIG}_defconfig" 2>/dev/null; then
+        success_msg "Config applied using ${CONFIG}_defconfig"
+    # الطريقة 2: استخدام اسم الملف مباشرة
+    elif make ARCH=arm64 CC=clang O=out "$CONFIG" 2>/dev/null; then
+        success_msg "Config applied using $CONFIG"
+    # الطريقة 3: النسخ اليدوي
+    elif cp "$CONFIG_PATH/$CONFIG" out/.config 2>/dev/null; then
+        success_msg "Config copied manually to out/.config"
+        # تحديث config بعد النسخ
+        make ARCH=arm64 CC=clang O=out oldconfig || warning_msg "oldconfig failed, but config was copied"
+    else
+        error_msg "Failed to apply configuration $CONFIG using all methods"
+    fi
+    
+    success_msg "Configuration $CONFIG applied successfully to out/.config"
 }
 
 # Function to open menuconfig
@@ -374,7 +432,7 @@ open_menuconfig() {
     read -p "Do you want to open menuconfig to customize the configuration? (y/n): " OPEN_MENUCONFIG
     if [[ $OPEN_MENUCONFIG == "y" || $OPEN_MENUCONFIG == "Y" ]]; then
         info_msg "Opening menuconfig..."
-        make CC="$CC" O=out menuconfig || error_msg "Failed to open menuconfig."
+        make ARCH=arm64 CC=clang O=out menuconfig || error_msg "Failed to open menuconfig."
         success_msg "Configuration customized successfully."
     else
         info_msg "Skipping menuconfig."
@@ -385,11 +443,8 @@ open_menuconfig() {
 start_build() {
     info_msg "Starting build process with $THREADS threads..."
     
-    # Copy config to out directory
-    cp "arch/arm64/configs/$CONFIG" out/.config || error_msg "Failed to copy config file"
-    
-    # Build the kernel
-    make CC="$CC" ARCH="$ARCH" O=out -j"$THREADS" || error_msg "Build process failed."
+    # بناء النواة مع تطبيق الإعدادات الصحيحة
+    make ARCH=arm64 CC=clang O=out -j"$THREADS" || error_msg "Build process failed."
     
     success_msg "Build process completed successfully!"
 }
@@ -403,12 +458,13 @@ main() {
     copy_repo_files
     download_wifi_drivers
     setup_can_support
-    fix_can327_issues  # Added this function call
+    add_elm327_driver
+    fix_can327_issues
     modify_can_kconfig
     modify_can_makefile
     modify_makefiles
     modify_kconfig_and_makefile
-    choose_config
+    choose_and_apply_config
     open_menuconfig
     start_build
 }

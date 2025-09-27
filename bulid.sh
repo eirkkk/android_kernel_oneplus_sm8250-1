@@ -129,10 +129,10 @@ download_additional_repos() {
     # Clone op8 repository for audio codecs
     if [ ! -d "op8" ]; then
         info_msg "Cloning op8 repository..."
-        git clone --depth 1 --filter=blob:none --sparse https://github.com/engstk/op8.git
+        git clone --depth 1 --filter=blob:none --sparse --branch blu_spark-13-custom https://github.com/engstk/op8.git
         cd op8
         git sparse-checkout set techpack/audio/asoc/codecs/tfa98xx-v6
-        git checkout main
+        git checkout blu_spark-13-custom  # This command might be optional
         cd ..
     fi
 

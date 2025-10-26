@@ -10,7 +10,7 @@ if QCA_CLD_WLAN != n
 
 config QCA_CLD_WLAN_PROFILE
 	string "Configuration profile for Qualcomm Atheros CLD WLAN module"
-	default "default"
+	default "qca6390"
 	help
 	  Specify which configuration profile to be used for building
 	  this module.

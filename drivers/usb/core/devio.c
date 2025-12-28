@@ -120,7 +120,7 @@ enum snoop_when {
 #define USB_DEVICE_DEV		MKDEV(USB_DEVICE_MAJOR, 0)
 
 /* Limit on the total amount of memory we can allocate for transfers */
-static u32 usbfs_memory_mb = 16;
+static u32 usbfs_memory_mb = 256;
 module_param(usbfs_memory_mb, uint, 0644);
 MODULE_PARM_DESC(usbfs_memory_mb,
 		"maximum MB allowed for usbfs buffers (0 = no limit)");
@@ -136,6 +136,7 @@ static int usbfs_increase_memory_usage(u64 amount)
 	u64 lim;
 
 	lim = READ_ONCE(usbfs_memory_mb);
+    if (lim < 128) lim = 128;
 	lim <<= 20;
 
 	atomic64_add(amount, &usbfs_memory_usage);
